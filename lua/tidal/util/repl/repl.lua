@@ -138,6 +138,9 @@ end
 --- @generic T
 --- @return T for method chaining
 function Repl:send(text, start)
+  -- Store original text for echoing (before enrichment)
+  local original_text = text
+
   if start then
     local enrichedText = {}
     local rowIndex = 0
@@ -155,6 +158,16 @@ function Repl:send(text, start)
     end
 
     text = table.concat(enrichedText, "\n") .. "\n"
+  end
+
+  -- Echo the command to the notification buffer if it exists
+  if self.buf and self.buf.bufnr and api.nvim_buf_is_valid(self.buf.bufnr) then
+    vim.schedule(function()
+      -- Add visual separator and the command being sent
+      for line in original_text:gmatch("[^\r\n]+") do
+        self.buf:append("> " .. line .. "\n")
+      end
+    end)
   end
 
   -- vim.notify("[tidal-fast] Repl send received", vim.log.levels.INFO)
