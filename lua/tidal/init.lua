@@ -59,7 +59,12 @@ local function setup_autocmds()
     group = "Tidal",
     pattern = { "*.tidal" },
     callback = function()
-      vim.api.nvim_set_option_value("filetype", "haskell", { buf = 0 })
+      if config.options.filetype then
+        vim.api.nvim_set_option_value("filetype", config.options.filetype, { buf = 0 })
+      else
+        vim.api.nvim_set_option_value("filetype", "haskell", { buf = 0 })
+      end
+
       for name, mapping in pairs(config.options.mappings or {}) do
         if mapping then
           local command = keymaps[name]

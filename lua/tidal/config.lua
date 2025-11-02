@@ -73,6 +73,8 @@ local defaults = {
     --- Duration to apply the highlight for
     timeout = 150,
   },
+  --- @type string | nil
+  filetype = "haskell",
 }
 
 ---@type TidalConfig

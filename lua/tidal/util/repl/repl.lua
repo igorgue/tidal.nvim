@@ -2,7 +2,8 @@ local Buffer = require("tidal.util.buffer")
 
 ---@class Repl
 ---@field buf Buffer
----@field proc? integer
+---@field proc? uv.uv_process_t
+---@field buffer? integer  -- Buffer handle for cleanup
 ---@field opts ReplOpts
 local Repl = {}
 Repl.__index = Repl
@@ -27,6 +28,7 @@ function Repl:new(opts)
   obj.stderr = {}
   obj.stdin = {}
   obj.proc = nil
+  obj.buffer = nil  -- Buffer handle for cleanup
 
   return obj
 end
@@ -78,8 +80,8 @@ end
 --- @generic T
 --- @return T for method chaining
 function Repl:start(opts)
-  if self.proc and self.proc:is_active() then
-    return vim.notify("[repl] Command " .. self.opts.cmd .. "already running", vim.log.levels.INFO)
+  if self.proc then
+    return vim.notify("[repl] Command " .. self.opts.cmd .. " already running", vim.log.levels.INFO)
   end
 
   self.opts = vim.tbl_deep_extend("force", {}, self.opts, opts or {})
@@ -109,6 +111,7 @@ function Repl:start(opts)
 
   local buf = api.nvim_create_buf(false, true)
   api.nvim_buf_set_name(buf, "tidal-fast://" .. self.opts.cmd)
+  self.buffer = buf  -- Store buffer reference for cleanup
   vim.notify("[tidal] " .. self.opts.cmd .. " started (pipe mode)", vim.log.levels.INFO)
 
   return self
@@ -190,8 +193,22 @@ end
 function Repl:exit()
   if self.proc then
     -- Removes buffers and closes windows
-    vim.fn.jobstop(self.proc)
+    -- For libuv processes, use kill method instead of jobstop
+    self.proc:kill("sigterm")
   end
+  
+  -- Clean up the buffer if it exists
+  if self.buffer and api.nvim_buf_is_valid(self.buffer) then
+    api.nvim_buf_delete(self.buffer, { force = true })
+    self.buffer = nil
+  end
+  
+  -- Clean up the notification buffer if it exists
+  if self.buf and self.buf.bufnr and api.nvim_buf_is_valid(self.buf.bufnr) then
+    self.buf:delete()
+    self.buf = nil
+  end
+  
   return self
 end
 
