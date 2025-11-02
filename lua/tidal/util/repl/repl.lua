@@ -114,6 +114,18 @@ function Repl:start(opts)
   self.buffer = buf  -- Store buffer reference for cleanup
   vim.notify("[tidal] " .. self.opts.cmd .. " started (pipe mode)", vim.log.levels.INFO)
 
+  -- Initialize the notification buffer to consume output even if not shown
+  -- This prevents the process from blocking on full output buffers
+  self.buf = Buffer.new({
+    name = self.opts.name,
+    scratch = true,
+    listed = false,
+  })
+
+  -- Attach pipes immediately to consume output
+  attach(self.stdout, "stdout", self.buf)
+  attach(self.stderr, "stderr", self.buf)
+
   return self
 end
 
@@ -124,14 +136,15 @@ function Repl:showNotificationBuffer(filetype)
       scratch = true,
       listed = false,
     })
+
+    -- Attach pipes if not already attached
+    attach(self.stdout, "stdout", self.buf)
+    attach(self.stderr, "stderr", self.buf)
   end
 
   self.buf:show(self.opts or {})
 
   self.buf:set_option("filetype", filetype)
-
-  attach(self.stdout, "stdout", self.buf)
-  attach(self.stderr, "stderr", self.buf)
 end
 
 --- Send text to REPL
