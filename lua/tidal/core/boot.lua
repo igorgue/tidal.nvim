@@ -55,6 +55,14 @@ function M.sclang(opts, split)
   -- load the boot file
   local file = vim.fn.expand(opts.file)
   state.sclang:send_line('"' .. file .. '".load;')
+
+  -- initialize MIDI if enabled (with delay to ensure SuperDirt is ready to receive messages)
+  if opts.midi then
+    vim.defer_fn(function()
+      local message = require("tidal.core.message")
+      message.sclang.send_line("MIDIClient.init;")
+    end, 1000)
+  end
 end
 
 return M

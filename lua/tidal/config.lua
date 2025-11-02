@@ -10,6 +10,7 @@ local M = {}
 ---@field file string
 ---@field args table<string>
 ---@field enabled boolean
+---@field midi? boolean
 
 ---@class TidalConfig
 local defaults = {
@@ -50,6 +51,8 @@ local defaults = {
       --- SuperCollider boot file
       file = vim.api.nvim_get_runtime_file("bootfiles/BootSuperDirt.scd", false)[1],
       enabled = false,
+      --- Enable MIDI support when starting SuperDirt
+      midi = true,
     },
     split = "v",
   },
