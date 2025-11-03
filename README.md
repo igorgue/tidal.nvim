@@ -85,6 +85,12 @@ return {
       --- SuperCollider boot file
       file = vim.api.nvim_get_runtime_file("bootfiles/BootSuperDirt.scd", false)[1],
       enabled = false,
+      midi = {
+        enabled = false,
+        device_name = "Virtual Raw MIDI 4-0",
+        port_name = "VirMIDI 4-0",
+        latency = 0.0,
+      }
     },
     split = "v",
   },
@@ -197,7 +203,7 @@ You can customize the event highlighting markers in multiple ways:
 2. Change the style for each stream id
 3. Change the color for each stream id with external osc messages
 
-Where you can edit the styles, you can change any property that is supported by [nvim_set_hl](https://neovim.io/doc/user/api.html#nvim_set_hl()).
+Where you can edit the styles, you can change any property that is supported by [nvim_set_hl](<https://neovim.io/doc/user/api.html#nvim_set_hl()>).
 
 #### Change the global style
 

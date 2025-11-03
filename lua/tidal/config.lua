@@ -5,12 +5,19 @@ local M = {}
 ---@field sclang TidalProcConfig
 ---@field split "v" | nil
 
+---@class TidalMidiConfig
+---@field enabled boolean
+---@field device_name string
+---@field port_name string
+---@field latency number
+---@field symbol string
+
 ---@class TidalProcConfig
 ---@field cmd string
 ---@field file string
 ---@field args table<string>
 ---@field enabled boolean
----@field midi? boolean
+---@field midi? TidalMidiConfig
 
 ---@class TidalConfig
 local defaults = {
@@ -51,8 +58,13 @@ local defaults = {
       --- SuperCollider boot file
       file = vim.api.nvim_get_runtime_file("bootfiles/BootSuperDirt.scd", false)[1],
       enabled = false,
-      --- Enable MIDI support when starting SuperDirt
-      midi = true,
+      --- MIDI configuration for SuperDirt
+      midi = {
+        enabled = true,
+        device_name = "Virtual Raw MIDI 4-0",
+        port_name = "VirMIDI 4-0",
+        latency = 0.0,
+      },
     },
     split = "v",
   },

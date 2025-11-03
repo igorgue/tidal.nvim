@@ -57,11 +57,25 @@ function M.sclang(opts, split)
   state.sclang:send_line('"' .. file .. '".load;')
 
   -- initialize MIDI if enabled (with delay to ensure SuperDirt is ready to receive messages)
-  if opts.midi then
+  if opts.midi and opts.midi.enabled then
     vim.defer_fn(function()
       local message = require("tidal.core.message")
-      message.sclang.send_line("MIDIClient.init;")
-    end, 1000)
+
+      local device_name = opts.midi.device_name or "Virtual Raw MIDI 4-0"
+      local port_name = opts.midi.port_name or "VirMIDI 4-0"
+      local latency = opts.midi.latency or 0.0
+      local symbol = opts.midi.symbol or "midi"
+
+      message.sclang.send_line(
+        string.format(
+          '(MIDIClient.init; ~midiOut = MIDIOut.newByName("%s", "%s"); ~midiOut.latency = %s; ~dirt.soundLibrary.addMIDI(\\%s, ~midiOut);)',
+          device_name,
+          port_name,
+          latency,
+          symbol
+        )
+      )
+    end, 3000)
   end
 end
 
