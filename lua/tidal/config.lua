@@ -17,6 +17,7 @@ local M = {}
 ---@field file string
 ---@field args table<string>
 ---@field enabled boolean
+---@field pw_jack? boolean
 ---@field midi? TidalMidiConfig
 
 ---@class TidalConfig
@@ -58,6 +59,8 @@ local defaults = {
       --- SuperCollider boot file
       file = vim.api.nvim_get_runtime_file("bootfiles/BootSuperDirt.scd", false)[1],
       enabled = false,
+      --- Use pw-jack wrapper for PipeWire JACK compatibility
+      pw_jack = false,
       --- MIDI configuration for SuperDirt
       midi = {
         enabled = true,

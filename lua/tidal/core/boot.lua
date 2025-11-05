@@ -35,13 +35,23 @@ function M.sclang(opts, split)
     return
   end
 
+  -- Determine command and args based on pw_jack setting
+  local cmd = opts.cmd
+  local args = vim.list_extend({
+    "-i",
+    "scnvim",
+  }, opts.args or {})
+
+  if opts.pw_jack then
+    -- Wrap sclang with pw-jack for PipeWire JACK compatibility
+    cmd = "pw-jack"
+    args = vim.list_extend({ opts.cmd }, args)
+  end
+
   state.sclang = Sclang:new({
     name = "sclang",
-    cmd = opts.cmd,
-    args = vim.list_extend({
-      "-i",
-      "scnvim",
-    }, opts.args or {}),
+    cmd = cmd,
+    args = args,
     on_exit = function(_code, _signal)
       state.sclang = nil
     end,
